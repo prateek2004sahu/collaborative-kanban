@@ -1,0 +1,17 @@
+digraph A {
+  rankdir=TB; pad=0.4; nodesep=0.5; ranksep=0.7;
+  graph [fontname="Helvetica", label="System architecture", labelloc=t, fontsize=16];
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=11, margin="0.2,0.12"];
+  edge [fontname="Helvetica", fontsize=9, color="#475569"];
+  subgraph cluster_fe { label="React frontend (Vite)"; style=rounded; color="#94a3b8";
+    ui [label="Login · Org selector · Tenant switcher\nKanban (dnd-kit) · Task panel · Activity · Presence", fillcolor="#dbeafe"];
+    state [label="AuthContext · useBoard (optimistic UI, undo/redo)\nuseRealtime (join room, reconnect → resync)", fillcolor="#dbeafe"]; }
+  subgraph cluster_be { label="Node.js backend (single process)"; style=rounded; color="#94a3b8";
+    mw [label="Middleware pipeline\nauthenticate (JWT) → tenantScope (DB membership check) → requireRole → validate (Zod)", fillcolor="#dcfce7"];
+    rest [label="REST routes + services\n(task.service: transactions, board lock, version check)", fillcolor="#dcfce7"];
+    sock [label="Socket.IO server\nJWT handshake · tenant:join (re-authorised) · presence", fillcolor="#fef9c3"]; }
+  db [label="PostgreSQL\n8 tables · tenant_id everywhere · composite FKs · indexes", shape=cylinder, fillcolor="#ffedd5"];
+  ui -> state [dir=both]; state -> mw [label="HTTPS + Bearer JWT + X-Tenant-Id"]; mw -> rest; rest -> db [label="SQL (tenant-scoped)\nBEGIN … COMMIT"];
+  rest -> sock [label="after COMMIT:\nemitToTenant(tenant:<id>)", style=dashed]; sock -> state [label="task:* · column:* · presence:update\n(only to members of that tenant room)", style=dashed];
+  sock -> db [label="membership lookup", style=dotted];
+}

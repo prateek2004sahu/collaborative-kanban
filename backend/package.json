@@ -1,0 +1,28 @@
+{
+  "name": "kanban-backend",
+  "version": "1.0.0",
+  "description": "Multi-tenant real-time Kanban backend (Express + PostgreSQL + Socket.IO)",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "db:migrate": "node src/db/migrate.js",
+    "db:seed": "node src/db/seed.js",
+    "db:reset": "node src/db/migrate.js && node src/db/seed.js",
+    "test": "node --test --test-concurrency=1 --test-force-exit \"src/tests/*.test.js\""
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.12.0",
+    "socket.io": "^4.7.5",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "socket.io-client": "^4.7.5"
+  }
+}
